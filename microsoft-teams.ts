@@ -14,16 +14,20 @@ const { document } = new JSDOM(fragment).window;
 
 const images = document.querySelectorAll(".emoji-grid img");
 
-images.forEach((image, index) => {
-  const src = image.getAttribute("src");
+for (let i = 0; i < images.length; i++) {
+  const image = images[i];
+  const src = image.getAttribute("data-src") || image.getAttribute("src");
   const alt = image.getAttribute("alt");
-  
   const unicode = src?.match(/_([a-zA-Z0-9\-]*)/)?.[1];
 
-  if (!unicode) return;
+  if (!unicode) {
+    console.error("No unicode found for", src);
+    continue;
+  }
 
-  console.log(`[${index + 1} / ${images.length}]`, alt, src);
+  console.log(`[${i + 1} / ${images.length}]`, alt, src);
+
   execSync(`wget ${src} -O ${path.join(target, unicode)}.png`, {
     stdio: "pipe",
   });
-});
+}
